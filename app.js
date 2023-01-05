@@ -9,7 +9,7 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 // Middleware
-console.log(process.env.NODE_ENV);
+// console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  console.log(req.requestTime);
+  // console.log(req.headers);
   next();
 });
 
