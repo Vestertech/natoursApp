@@ -1,6 +1,7 @@
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -72,15 +73,12 @@ exports.createUser = (req, res) => {
   });
 };
 
-exports.updateUser = (req, res) => {
-  return res.status(500).json({
-    status: 'fail',
-    message: 'Invalid address'
-  });
-};
-exports.deleteUser = (req, res) => {
-  return res.status(500).json({
-    status: 'fail',
-    message: 'Invalid address'
-  });
-};
+// Do not update password with this!
+exports.updateUser = factory.updateOne(User);
+//   (req, res) => {
+//   return res.status(500).json({
+//     status: 'fail',
+//     message: 'Invalid address'
+//   });
+// };
+exports.deleteUser = factory.deleteOne(User);
