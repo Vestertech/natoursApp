@@ -42,11 +42,13 @@ const bookingSchema = new mongoose.Schema(
 );
 
 bookingSchema.pre('/^find/', function(next) {
-  this.populate({ path: 'tour', select: 'name' }).populate({
+  this.populate('user').populate({
     path: 'user',
     select: 'name email '
   });
   return next();
 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+const bookings = mongoose.model('Booking', bookingSchema);
+
+module.exports = bookings;

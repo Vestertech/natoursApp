@@ -2,6 +2,7 @@ const Tour = require('../models/tourModel');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const Booking = require('../models/bookingModel');
 
 exports.getOverview = catchAsync(async (req, res, next) => {
   // 1) Get tour data from collection
@@ -40,6 +41,12 @@ exports.getLoginForm = (req, res) => {
   });
 };
 
+exports.getSignUpForm = catchAsync(async (req, res, next) => {
+  res.status(200).render('signup', {
+    title: 'Sign Up'
+  });
+});
+
 exports.getAccount = (req, res) => {
   res.status(200).render('account', {
     title: 'Your account'
@@ -61,5 +68,22 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
   res.status(200).render('account', {
     title: 'Your account',
     user: updatedUser
+  });
+});
+
+exports.getMyTours = catchAsync(async (req, res, next) => {
+  //  helps to get rid of query params in url since the trxref and reference are not needed
+  if (req.query.trxref || req.query.reference) {
+    const urlReformed = `${req.originalUrl.split('?')[0]}?alert=booking`;
+    return res.redirect(urlReformed);
+  }
+  // 1. Find all bookings
+  const bookings = await Booking.find({ user: req.user.id });
+  // 2. Find tours with the returned IDs
+  const tourIds = bookings.map(el => el.tour);
+  const tours = await Tour.find({ _id: { $in: tourIds } });
+  res.status(200).render('overview', {
+    title: 'My Tours ',
+    tours
   });
 });

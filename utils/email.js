@@ -36,33 +36,26 @@ module.exports = class Email {
 
   // Send the actual email
   async send(template, subject) {
-    try {
-      console.log({ subject });
-      // 1) Render HTML based on a pug template
-      const html = pug.renderFile(
-        `${__dirname}/../views/email/${template}.pug`,
-        {
-          firstName: this.firstName,
-          url: this.url,
-          subject
-        }
-      );
+    console.log({ subject });
+    // 1) Render HTML based on a pug template
+    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+      firstName: this.firstName,
+      url: this.url,
+      subject
+    });
 
-      // 2) Define email options
-      const mailOptions = {
-        from: this.from,
-        to: this.to,
-        subject,
-        html,
-        text: hello.fromString(html)
-      };
+    // 2) Define email options
+    const mailOptions = {
+      from: this.from,
+      to: this.to,
+      subject,
+      html,
+      text: hello.fromString(html)
+    };
 
-      // 3) Create a transport and send email
-      const Apple = this.newTransport().sendMail(mailOptions);
-      console.log({ Apple });
-    } catch (error) {
-      console.log({ error });
-    }
+    // 3) Create a transport and send email
+    const Apple = this.newTransport().sendMail(mailOptions);
+    console.log({ Apple });
   }
 
   async sendWelcome() {

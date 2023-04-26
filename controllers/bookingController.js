@@ -1,4 +1,4 @@
-// const axios = require('axios');
+const axios = require('axios');
 const crypto = require('crypto');
 const payStack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 
@@ -53,7 +53,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const transaction = await payStack.transaction.initialize({
     amount: tour.price * 100,
     email: req.user.email,
-    callback_url: `${req.protocol}://${req.get('host')}/myTours`,
+    callback_url: `${req.protocol}://${req.get('host')}/?tours=${
+      req.params.tourId
+    }&user=${req.user.id}&price=${tour.price}`,
+    cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     currency: 'NGN',
     // metadata holds additional information about the transaction like cart items, cart total, cart id, etc
     // this is optional
@@ -72,57 +75,57 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 });
 
 // how to use paystack with callback_url
-// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-//   if (!req.query.reference && !req.query.trxref) return next();
-//   const response = await axios.get(
-//     `https://api.paystack.co/transaction/verify/${req.query.reference}`,
-//     {
-//       headers: {
-//         Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-//       },
-//     }
-//   );
-//   // if transaction is successful create a booking and update the tour date participants
-//   if (response.data.data.status === 'success') {
-//     const { tourId, userId, items } = response.data.data.metadata;
-//     await Booking.create({
-//       bookingId: req.query.reference,
-//       tour: tourId,
-//       user: userId,
-//       price: response.data.data.amount / 100,
-//       date: items[0].date.date,
-//     });
+exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+  if (!req.query.reference && !req.query.trxref) return next();
+  const response = await axios.get(
+    `https://api.paystack.co/transaction/verify/${req.query.reference}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+      }
+    }
+  );
+  // if transaction is successful create a booking and update the tour date participants
+  if (response.data.data.status === 'success') {
+    const { tourId, userId, items } = response.data.data.metadata;
+    await Booking.create({
+      bookingId: req.query.reference,
+      tour: tourId,
+      user: userId,
+      price: response.data.data.amount / 100,
+      date: items[0].date.date
+    });
 
-//     // This way might cause concurrency issues
-//     // const tour = await Tour.findById(tourId);
+    // This way might cause concurrency issues
+    // const tour = await Tour.findById(tourId);
 
-//     // const index = tour.startDates.findIndex(
-//     //   (date) =>
-//     //     date.date.toISOString() ===
-//     //     response.data.data.metadata.items[0].date.date
-//     // );
-//     // tour.startDates[index].participants += 1;
-//     // await tour.save({ validateBeforeSave: false });
+    // const index = tour.startDates.findIndex(
+    //   (date) =>
+    //     date.date.toISOString() ===
+    //     response.data.data.metadata.items[0].date.date
+    // );
+    // tour.startDates[index].participants += 1;
+    // await tour.save({ validateBeforeSave: false });
 
-//     // This way helps to avoid concurrency issues
-//     await Tour.findOneAndUpdate(
-//       { _id: tourId },
-//       { $inc: { 'startDates.$[elemMatch].participants': 1 } },
-//       {
-//         arrayFilters: [
-//           {
-//             'elemMatch.date': response.data.data.metadata.items[0].date.date,
-//           },
-//         ],
-//       }
-//     );
-//   }
-//   // if transaction is not successful send an error message
-//   if (response.data.data.status === 'fail')
-//     return next(new AppError('Payment failed, please try again', 400));
+    // This way helps to avoid concurrency issues
+    await Tour.findOneAndUpdate(
+      { _id: tourId },
+      { $inc: { 'startDates.$[elemMatch].participants': 1 } },
+      {
+        arrayFilters: [
+          {
+            'elemMatch.date': response.data.data.metadata.items[0].date.date
+          }
+        ]
+      }
+    );
+  }
+  // if transaction is not successful send an error message
+  if (response.data.data.status === 'fail')
+    return next(new AppError('Payment failed, please try again', 400));
 
-//   res.redirect(req.originalUrl.split('?')[0]);
-// });
+  res.redirect(req.originalUrl.split('?')[0]);
+});
 exports.paystackWebHook = catchAsync(async (req, res, next) => {
   // 1. confirm that the event is from paystack by verifying the signature sent in the header of the request with the secret key
   const signature = req.headers['x-paystack-signature'];
