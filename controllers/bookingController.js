@@ -14,49 +14,47 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
 
   if (!tour) return next(new AppError('There is no tour with that ID', 404));
+  // const tourDate = tour.startDates.filter(date => {
+  //   console.log(date.toISOString());
+  //   return date.toISOString() === req.params.tourDate;
+  // });
+  // console.log(tourDate);
+  // if (tourDate.length < 1)
+  //   return next(new AppError('There is no tour with that date', 404));
 
-  const tourDate = tour.startDates.filter(
-    date => date.date.toISOString() === req.params.tourDate
-  );
-  if (!tourDate)
-    return next(new AppError('There is no tour with that date', 404));
+  // if (tourDate[0].date < Date.now())
+  //   return next(new AppError('You cannot book a tour in the past', 400));
 
-  if (tourDate[0].date < Date.now())
-    return next(new AppError('You cannot book a tour in the past', 400));
+  // if (tourDate[0].soldOut === true) {
+  //   return next(
+  //     new AppError('Sorry, this tour is fully booked for this date', 400)
+  //   );
+  // }
 
-  if (tourDate[0].soldOut === true) {
-    return next(
-      new AppError('Sorry, this tour is fully booked for this date', 400)
-    );
-  }
+  // if (tourDate[0].participants >= tour.maxGroupSize) {
+  //   if (!tourDate[0].soldOut) {
+  //     tourDate[0].soldOut = true;
+  //     await tour.save({ validateBeforeSave: false });
+  //   }
 
-  if (tourDate[0].participants >= tour.maxGroupSize) {
-    if (!tourDate[0].soldOut) {
-      tourDate[0].soldOut = true;
-      await tour.save({ validateBeforeSave: false });
-    }
+  //   return next(
+  //     new AppError('Sorry, this tour is fully booked for this date', 400)
+  //   );
+  // }
 
-    return next(
-      new AppError('Sorry, this tour is fully booked for this date', 400)
-    );
-  }
+  // // 1b - check if the tour is already booked by the user
+  // const alreadyBooked = await Booking.findOne({
+  //   $and: [{ tour: req.params.tourId }, { user: req.user.id }]
+  // });
 
-  // 1b - check if the tour is already booked by the user
-  const alreadyBooked = await Booking.findOne({
-    $and: [{ tour: req.params.tourId }, { user: req.user.id }]
-  });
-
-  if (alreadyBooked)
-    return next(new AppError('You have already booked this tour', 400));
+  // if (alreadyBooked)
+  //   return next(new AppError('You have already booked this tour', 400));
 
   // 2) Create checkout session/transaction
   const transaction = await payStack.transaction.initialize({
     amount: tour.price * 100,
     email: req.user.email,
-    callback_url: `${req.protocol}://${req.get('host')}/?tours=${
-      req.params.tourId
-    }&user=${req.user.id}&price=${tour.price}`,
-    cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
+    callback_url: `${req.protocol}://${req.get('host')}/myTours`,
     currency: 'NGN',
     // metadata holds additional information about the transaction like cart items, cart total, cart id, etc
     // this is optional
@@ -64,9 +62,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     metadata: {
       userId: req.user.id,
       tourId: tour.id,
-      items: [{ tour, date: tourDate[0] }]
+      items: [{ tour }] //, date: tourDate[0] }]
     }
   });
+  console.log(transaction);
   // 3) Create session as response
   res.status(200).json({
     status: 'success',

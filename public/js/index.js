@@ -13,7 +13,7 @@ const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
-const bookBtn = document.getElementById('book-tour');
+const bookBtn = document.getElementById('bookTour');
 
 // DELEGATION
 // if (mapBox) {
@@ -47,7 +47,7 @@ if (userDataForm) {
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
     form.append('photo', document.getElementById('photo').files[0]);
-    console.log(form);
+    
 
     updateSettings(form, 'data');
   });
@@ -58,13 +58,14 @@ if (userPasswordForm) {
     e.preventDefault();
     document.querySelector('.btn--save-password').textContent = 'updating...';
 
-
-
     const passwordCurrent = document.getElementById('password-current').value;
     const password = document.getElementById('password').value;
     const passwordConfirm = document.getElementById('password-confirm').value;
-    await updateSettings({ passwordCurrent, password, passwordConfirm }, 'password');
-      
+    await updateSettings(
+      { passwordCurrent, password, passwordConfirm },
+      'password'
+    );
+
     document.querySelector('.btn--save-password').textContent = 'Save Password';
     document.getElementById('password-current').value = '';
     document.getElementById('password').value = '';
@@ -72,5 +73,5 @@ if (userPasswordForm) {
   });
 }
 
-    const alertMessage = document.querySelector('body').dataset.alert;
-    if (alertMessage) showAlert('success', alertMessage, 20);
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alertMessage) showAlert('success', alertMessage, 20);

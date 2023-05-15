@@ -6,6 +6,11 @@ const router = express.Router();
 
 router.post('/paystackWebhook', bookingController.paystackWebHook);
 router.use(authController.protect);
+router.get(
+  '/checkout-session/:tourId/date/:tourDate',
+  bookingController.getCheckoutSession
+);
+router.use(authController.protect);
 
 router.get('/checkout-session/:tourId', bookingController.getCheckoutSession);
 

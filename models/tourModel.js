@@ -72,10 +72,22 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     createdAt: {
       type: Date,
-      default: Date.now(),
-      select: false
+      default: Date.now()
     },
-    startDates: [Date],
+    startDates: [
+      {
+        date: { type: Date },
+        participants: {
+          type: Number,
+          default: 0,
+          max: [this.maxGroupSize, 'Participants cannot exceed max group size']
+        },
+        soldOut: {
+          type: Boolean,
+          default: false
+        }
+      }
+    ],
     secretTour: {
       type: Boolean,
       default: false
@@ -125,7 +137,7 @@ tourSchema.index({ slug: 1 });
 tourSchema.index({ startLocation: '2dsphere' });
 
 tourSchema.virtual('durationWeeks').get(function() {
-  return this.duration / 7;
+  return Math.ceil(this.duration / 7);
 });
 
 // Virtual populate
@@ -161,12 +173,9 @@ tourSchema.pre('save', function(next) {
 // Query Middleware
 // tourSchema.pre('find', function(next) {
 tourSchema.pre(/^find/, function(next) {
-  this.find({ secretTour: { $ne: true } });
-
-  this.start = Date.now();
-  next();
-});
-tourSchema.pre(/^find/, function(next) {
+  // .populate() is a mongoose method that allows us to populate the fields of a document with data from another collection
+  // path is the name of the field in the document that we want to populate
+  // select is the fields that we want to select from the other collection that we want to populate
   this.populate({
     path: 'guides',
     select: '-__v -passwordChangedAt'
@@ -175,9 +184,16 @@ tourSchema.pre(/^find/, function(next) {
   next();
 });
 
+tourSchema.pre(/^find/, function(next) {
+  this.find({ secretTour: { $ne: true } });
+
+  this.start = Date.now();
+  next();
+});
+
 tourSchema.post('find', function(docs, next) {
-  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
-  console.log(docs);
+  // console.log(`Query took ${Date.now() - this.start} milliseconds!`);
+  // console.log(docs);
   next();
 });
 
