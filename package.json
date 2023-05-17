@@ -10,6 +10,10 @@
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
+  "engines": {
+    "npm": ">=8.0.0 <9.0.0",
+    "node": ">=16.0.0 <17.0.0"
+  },
   "author": "Sylvester Eziagor",
   "license": "ISC",
   "dependencies": {
@@ -49,8 +53,5 @@
     "eslint-plugin-react": "^7.12.4",
     "parcel-bundler": "^1.8.1",
     "prettier": "^1.17.0"
-  },
-  "engines": {
-    "node": ">=10.0.0"
   }
 }
