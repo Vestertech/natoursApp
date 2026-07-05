@@ -10,6 +10,17 @@ process.on('uncaughtException', err => {
 dotenv.config({ path: './config.env' });
 const app = require('./app');
 
+// Fail loudly if required env vars are missing (e.g. not set on the host)
+const requiredEnv = ['DATABASE', 'DATABASE_PASSWORD', 'JWT_SECRET'];
+const missing = requiredEnv.filter(name => !process.env[name]);
+if (missing.length) {
+  console.log(
+    `FATAL: missing environment variable(s): ${missing.join(', ')}. ` +
+      'Set them in the host dashboard (or config.env locally).'
+  );
+  process.exit(1);
+}
+
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
   process.env.DATABASE_PASSWORD
