@@ -19,6 +19,10 @@ const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
 
+// Railway/Heroku terminate TLS at a proxy — needed for correct req.ip,
+// req.protocol and rate limiting in production
+app.set('trust proxy', 1);
+
 // app.use(
 //   cors({
 //     origin: ['http://127.0.0.1:3000', 'https://checkout.paystack.com'],
