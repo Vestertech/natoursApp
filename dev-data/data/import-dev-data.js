@@ -23,7 +23,13 @@ mongoose
   });
 
 //   READ JSON FILE
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
+const tours = JSON.parse(
+  fs.readFileSync(`${__dirname}/tours.json`, 'utf-8')
+).map(tour => ({
+  ...tour,
+  // Schema expects startDates as [{ date, participants, soldOut }]
+  startDates: tour.startDates.map(date => ({ date }))
+}));
 const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
 const reviews = JSON.parse(
   fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')

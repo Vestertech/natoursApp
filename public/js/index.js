@@ -1,15 +1,16 @@
 /* eslint-disable */
 import '@babel/polyfill';
 // import { displayMap } from './mapbox.js';
-// import {signUp} from './'
+import { signup } from './signup';
 import { login, logout } from './login';
 import { updateSettings } from './updateSettings';
-import bookTour from './payStack.js';
+import bookTour from './paystack.js';
 import { showAlert } from './alerts.js';
 
 // DOM ELEMENTS
 // const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
+const signupForm = document.querySelector('.signUpForm');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
@@ -26,8 +27,18 @@ if (loginForm) {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    // console.log(email, password);
     login(email, password);
+  });
+}
+
+if (signupForm) {
+  signupForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('passwordConfirm').value;
+    signup(name, email, password, passwordConfirm);
   });
 }
 if (bookBtn) {
@@ -47,7 +58,6 @@ if (userDataForm) {
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
     form.append('photo', document.getElementById('photo').files[0]);
-    
 
     updateSettings(form, 'data');
   });

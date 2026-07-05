@@ -7,8 +7,8 @@
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
-    "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
-    "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
+    "watch:js": "esbuild public/js/index.js --bundle --sourcemap --outfile=public/js/bundle.js --target=es2017 --watch",
+    "build:js": "esbuild public/js/index.js --bundle --sourcemap --outfile=public/js/bundle.js --target=es2017"
   },
   "author": "Sylvester Eziagor",
   "license": "ISC",
@@ -39,6 +39,7 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
+    "esbuild": "^0.28.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^4.1.0",

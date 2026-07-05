@@ -14,6 +14,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
 
   if (!tour) return next(new AppError('There is no tour with that ID', 404));
+  const tourDate = Date.now();
   // const tourDate = tour.startDates.filter(date => {
   //   console.log(date.toISOString());
   //   return date.toISOString() === req.params.tourDate;
@@ -54,7 +55,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const transaction = await payStack.transaction.initialize({
     amount: tour.price * 100,
     email: req.user.email,
-    callback_url: `${req.protocol}://${req.get('host')}/myTours`,
+    callback_url: `${req.protocol}://${req.get('host')}/`,
     currency: 'NGN',
     // metadata holds additional information about the transaction like cart items, cart total, cart id, etc
     // this is optional
@@ -62,7 +63,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     metadata: {
       userId: req.user.id,
       tourId: tour.id,
-      items: [{ tour }] //, date: tourDate[0] }]
+      items: [{ tour }],
+      tourDate: tourDate
     }
   });
   console.log(transaction);
@@ -86,34 +88,26 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   );
   // if transaction is successful create a booking and update the tour date participants
   if (response.data.data.status === 'success') {
+    console.log(response.data.data);
     const { tourId, userId, items } = response.data.data.metadata;
     await Booking.create({
       bookingId: req.query.reference,
       tour: tourId,
       user: userId,
       price: response.data.data.amount / 100,
-      date: items[0].date.date
+      date: items[0].date,
+      tourDate: Date.now(),
+      paidAt: response.data.data.paid_at
     });
 
-    // This way might cause concurrency issues
-    // const tour = await Tour.findById(tourId);
-
-    // const index = tour.startDates.findIndex(
-    //   (date) =>
-    //     date.date.toISOString() ===
-    //     response.data.data.metadata.items[0].date.date
-    // );
-    // tour.startDates[index].participants += 1;
-    // await tour.save({ validateBeforeSave: false });
-
-    // This way helps to avoid concurrency issues
+    // update the tour date participants
     await Tour.findOneAndUpdate(
       { _id: tourId },
       { $inc: { 'startDates.$[elemMatch].participants': 1 } },
       {
         arrayFilters: [
           {
-            'elemMatch.date': response.data.data.metadata.items[0].date.date
+            'elemMatch.date': response.data.data.paid_at
           }
         ]
       }
@@ -123,7 +117,8 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   if (response.data.data.status === 'fail')
     return next(new AppError('Payment failed, please try again', 400));
 
-  res.redirect(req.originalUrl.split('?')[0]);
+  // res.redirect(req.originalUrl.split('?')[0]);
+  res.redirect(`${req.protocol}://${req.get('host')}/`);
 });
 exports.paystackWebHook = catchAsync(async (req, res, next) => {
   // 1. confirm that the event is from paystack by verifying the signature sent in the header of the request with the secret key
@@ -140,13 +135,14 @@ exports.paystackWebHook = catchAsync(async (req, res, next) => {
   const { event, data } = req.body;
   if (event === 'charge.success') {
     const { tourId, userId, items } = data.metadata;
+    console.log(items);
     // create a booking and update the tour date participants
     await Booking.create({
       bookingId: data.reference,
       tour: tourId,
       user: userId,
       price: data.amount / 100,
-      tourDate: items[0].date.date,
+      tourDate: items[0].paid_at,
       paidAt: data.paidAt
     });
 
@@ -156,7 +152,7 @@ exports.paystackWebHook = catchAsync(async (req, res, next) => {
       {
         arrayFilters: [
           {
-            'elemMatch.date': items[0].date.date
+            'elemMatch.date': Date.now()
           }
         ]
       }
