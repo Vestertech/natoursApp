@@ -1322,3 +1322,216 @@ body {
   -webkit-transform: translateY(-2px);
   transform: translateY(-2px);
 }
+
+/* ------------------------------- */
+/* Responsive: tablet and below    */
+/* ------------------------------- */
+
+@media only screen and (max-width: 62.5em) {
+  .card-container {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 5rem;
+  }
+
+  .header {
+    height: auto;
+    padding: 2rem 3rem;
+  }
+}
+
+@media only screen and (max-width: 50em) {
+  body {
+    padding: 0;
+  }
+
+  .main {
+    padding: 4rem 2rem;
+  }
+
+  .heading-primary {
+    font-size: 3.5rem;
+    width: 90%;
+  }
+
+  /* Tour page: taller hero so the heading fits */
+  .section-header {
+    height: auto;
+    min-height: 32rem;
+    padding-bottom: calc(var(--section-rotate) + 6rem);
+  }
+
+  .header__hero {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .heading-box {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    -webkit-transform: none;
+    transform: none;
+    padding: 8rem 2rem 0 2rem;
+    text-align: center;
+  }
+
+  .heading-box .heading-primary {
+    width: 100%;
+    font-size: 3rem;
+  }
+
+  .heading-box__group {
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+  }
+
+  .heading-box__detail:not(:last-child) {
+    margin-right: 2rem;
+  }
+
+  /* Tour page: stack description below overview */
+  .section-description {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+
+  .section-description > * {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 0 6vw;
+    padding-top: calc(var(--section-rotate) + 4rem);
+    padding-bottom: 4rem;
+  }
+
+  .description-box .description {
+    margin-right: 0;
+  }
+
+  .overview-box {
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+  }
+
+  .overview-box__group:not(:last-child) {
+    margin-bottom: 4rem;
+  }
+
+  .section-map {
+    height: 45rem;
+  }
+
+  /* CTA card: stack content, drop the overlapping images */
+  .section-cta {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .cta {
+    padding: 10rem 3rem 5rem 3rem;
+  }
+
+  .cta__img--1,
+  .cta__img--2 {
+    display: none;
+  }
+
+  .cta__img--logo {
+    height: 10rem;
+    width: 10rem;
+    left: 50%;
+    top: 0;
+    -webkit-transform: translate(-50%, -35%);
+    transform: translate(-50%, -35%);
+  }
+
+  .cta__content {
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+    justify-items: center;
+    text-align: center;
+    grid-gap: 2rem;
+  }
+
+  /* Account page: stack menu above content */
+  .user-view {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+
+  .user-view__menu {
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    padding: 2rem 0;
+  }
+
+  .user-view__content {
+    padding: 4rem 0;
+  }
+
+  .user-view__form-container {
+    padding: 0 3rem;
+  }
+
+  .side-nav a:link,
+  .side-nav a:visited {
+    padding: 1rem 2.5rem;
+  }
+
+  .admin-nav {
+    margin-top: 3rem;
+  }
+
+  .admin-nav__heading {
+    margin: 0 2.5rem 1.5rem 2.5rem;
+  }
+
+  .alert {
+    width: 95%;
+    padding: 1.6rem 2rem;
+  }
+
+  .error {
+    width: 90%;
+  }
+}
+
+@media only screen and (max-width: 37.5em) {
+  .main {
+    padding: 3rem 1.5rem;
+  }
+
+  .card-container {
+    grid-template-columns: 1fr;
+    grid-gap: 4rem;
+  }
+
+  .login-form {
+    padding: 4rem 2.5rem;
+  }
+
+  .heading-secondary--error {
+    font-size: 2.5rem;
+  }
+
+  .error__msg {
+    font-size: 2rem;
+  }
+
+  .reviews__card {
+    width: 26rem;
+    padding: 3rem 2.5rem;
+  }
+
+  .footer {
+    padding: 4rem 2rem 3rem 2rem;
+  }
+}
